@@ -100,6 +100,9 @@ public class BedWars1058_Platform extends JavaPlugin implements Listener {
 
         player.sendMessage(Objects.requireNonNull(getConfig().getString("messages.created")));
 
+        ItemStack item = player.getInventory().getItemInMainHand();
+        removeItem(player, item); // from chengfeng30121@github.com
+
         Bukkit.getScheduler().runTaskLater(this, () -> removeRescuePlatform(location), 300L);
     }
 
