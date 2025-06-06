@@ -1,6 +1,7 @@
-name: BedWars1058_Platform
-version: '1.0-SNAPSHOT'
-main: org.xianbei235.bedWars1058_Platform.BedWars1058_Platform
-authors: [ xianbei235 ]
-description: 起床战争1058的插件物品-救援平台道具
-website: https://github.com/xianbei234
+name: BedWars1058-Addon-Platform
+version: '1.0'
+main: org.eu.cf3012.Bedwars1058_Platform.Bedwars1058_Platform
+authors: [ chengfeng30121 ]
+description: Bedwars1058 插件 - 救援平台
+website: https://github.com/chengfeng30121/BedWars1058-Addon-Platform
+depends: [ BedWars1058 ]

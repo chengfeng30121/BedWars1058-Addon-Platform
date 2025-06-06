@@ -9,12 +9,19 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: 'zulu'
+          java-version: '8'
+          java-package: jdk
       - name: Build
         run: |
           mvn --batch-mode --update-snapshots verify
+          if [ -f "target/Bedwars1058-Platform.jar" ]; then
+            echo "Build Success!"
+          else
+            echo "Build Failed!"
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Release
-          path: '*'
+          path: 'target/Bedwars1058-Platform.jar'

@@ -1,4 +1,4 @@
-package org.xianbei235.bedWars1058_Platform;
+package org.eu.cf3012.Bedwars1058_Platform;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,24 +11,38 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class BedWars1058_Platform extends JavaPlugin implements Listener {
+
+public class Bedwars1058_Platform extends JavaPlugin implements Listener {
     private final Map<String, Long> cooldowns = new HashMap<>();
     private Material rescuePlatformItemType;
     private int cooldownTime;
     private final Map<Location, BlockState> originalBlocks = new HashMap<>();
 
+    private void Logger(String raw, Integer level) {
+        String message = getConfig().getString("messages.prefix", "[Bedwars1058_Platform] ") + raw;
+        if (level == 0) {
+            getLogger().info(message);
+        } else if (level == 1) {
+            getLogger().warning(message);
+        } else if (level == 2) {
+            getLogger().severe(message);
+        } else {
+            getLogger().info(message);
+        }
+    }
+
     @Override
     public void onEnable() {
         if (!pluginlistener()) {
-            getLogger().severe("您没有安装前置插件-BedWars1058");
+            Logger(getConfig().getString("console.no_depend", "插件依赖 BedWars1058 未安装, 插件已禁用! "), 2);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -36,31 +50,18 @@ public class BedWars1058_Platform extends JavaPlugin implements Listener {
         saveDefaultConfig();
         loadConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("插件已启用");
     }
 
     private void loadConfig() {
         String itemMaterialName = getConfig().getString("platform.item.material", "BLAZE_ROD");
         rescuePlatformItemType = Material.getMaterial(itemMaterialName);
         if (rescuePlatformItemType == null) {
-            getLogger().warning("配置文件中的物品类型无法使用,请检查物品类型后重启服务器");
+            Logger(getConfig().getString("console.invalid_item", "配置文件中的物品类型无法使用,请检查物品类型后重启服务器! "), 1);
             rescuePlatformItemType = Material.BLAZE_ROD;
         }
 
-        String itemName = getConfig().getString("platform.item.name", "§6救援平台");
-
         cooldownTime = getConfig().getInt("platform.cooldown", 15);
 
-        setItemMetaName(itemName);
-    }
-
-    private void setItemMetaName(String name) {
-        ItemStack mainHandItem = new ItemStack(rescuePlatformItemType);
-        ItemMeta meta = mainHandItem.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(name);
-            mainHandItem.setItemMeta(meta);
-        }
     }
 
     private boolean pluginlistener() {
@@ -69,6 +70,14 @@ public class BedWars1058_Platform extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+
+        if (!event.hasItem()) {
+            return;
+        }
+
         ItemStack item = event.getItem();
         if (item != null && item.getType() == rescuePlatformItemType) {
             Player player = event.getPlayer();
@@ -82,11 +91,19 @@ public class BedWars1058_Platform extends JavaPlugin implements Listener {
             }
             createRescuePlatform(player);
             cooldowns.put(playerName, currentTime);
+
+            removeItem(player, item);
         }
     }
 
     private void createRescuePlatform(Player player) {
         Location location = player.getLocation();
+
+        if (location.getBlock().getType() != Material.AIR) {
+            player.sendMessage(Objects.requireNonNull(getConfig().getString("messages.no_air", "§c你没有足够的空间放置平台! ")));
+            return;
+        }
+
         for (int x = -2; x <= 2; x++) {
             for (int z = -2; z <= 2; z++) {
                 Location blockLocation = location.clone().add(x, -1, z);
@@ -99,9 +116,6 @@ public class BedWars1058_Platform extends JavaPlugin implements Listener {
         }
 
         player.sendMessage(Objects.requireNonNull(getConfig().getString("messages.created")));
-
-        ItemStack item = player.getInventory().getItemInMainHand();
-        removeItem(player, item); // from chengfeng30121@github.com
 
         Bukkit.getScheduler().runTaskLater(this, () -> removeRescuePlatform(location), 300L);
     }

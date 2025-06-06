@@ -1,13 +1,17 @@
 platform:
   item:
     material: "BLAZE_ROD"
-    name: "§6救援平台"
   cooldown: 15
 
 messages:
-  cooldown: "§c你将在 %time% 秒后才能再次使用"
+  prefix: "[Bedwars1058_Platform] "
+  cooldown: "§c你在 %time% 秒后才能再次使用! "
   created: "§a你创建了一个救援平台！"
   removed: "§c救援平台已被清除！"
   no_permission: "§c你没有权限执行此操作！"
   block_protection: "§c你无法破坏救援平台！"
-  damage_protection: "§c你无法受到伤害，站在救援平台上！"
+  damage_protection: "§a你站在救援平台上，已免疫伤害. "
+
+console: # 有 Logger 的等级设置了, 不需要再次设置格式化字符
+  no_depend: "插件依赖 BedWars1058 未安装, 插件已禁用! "
+  invalid_item: "配置文件中的物品类型无法使用,请检查物品类型后重启服务器! "
